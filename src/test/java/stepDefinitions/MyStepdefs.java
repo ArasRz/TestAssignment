@@ -21,7 +21,7 @@ public class MyStepdefs {
 
     @Given("I am on the New Supporter Account registration page")
     public void iAmOnTheNewSupporterAccountRegistrationPage() {
-        driver = new ChromeDriver(); // Assign the driver properly
+        driver = new ChromeDriver();
         driver.get("https://membership.basketballengland.co.uk/NewSupporterAccount");
         driver.manage().window().maximize();
     }
@@ -49,22 +49,17 @@ public class MyStepdefs {
             driver.findElement(By.xpath("//div[@class='datepicker-years']//th[@class='prev']")).click();
             Thread.sleep(500);
         }
-        // Select the target year
         driver.findElement(By.xpath("//span[text()='" + year + "']")).click();
         Thread.sleep(500);
-       // Select the target month
         driver.findElement(By.xpath("//span[normalize-space()='" + month + "']")).click();
         Thread.sleep(500);
-        // Select the target day
         driver.findElement(By.xpath("//td[normalize-space()='" + day + "']")).click();
         Thread.sleep(500);
 
-
-        // Fill in required details
         driver.findElement(By.id("member_firstname")).sendKeys("Joe");
         driver.findElement(By.id("member_lastname")).sendKeys("Doe");
-        driver.findElement(By.id("member_emailaddress")).sendKeys("testuser7@example.com");
-        driver.findElement(By.id("member_confirmemailaddress")).sendKeys("testuser7@example.com");
+        driver.findElement(By.id("member_emailaddress")).sendKeys("testuser9@example.com");
+        driver.findElement(By.id("member_confirmemailaddress")).sendKeys("testuser9@example.com");
         driver.findElement(By.id("signupunlicenced_password")).sendKeys("Password123!");
         driver.findElement(By.id("signupunlicenced_confirmpassword")).sendKeys("Password123!");
     }
@@ -108,4 +103,99 @@ public class MyStepdefs {
         //driver.quit();
 
     }
+
+    @When("I fill in required details except the last name")
+    public void iFillInRequiredDetailsExceptTheLastName() throws InterruptedException {
+        String year = "1988";
+        String month = "Jun";
+        String day   = "6";
+
+        WebElement birthDateDropdown = driver.findElement(By.xpath("//input[@id='dp']"));
+        birthDateDropdown.click();
+        Thread.sleep(1000);
+        driver.findElement(By.xpath("//th[@class='datepicker-switch']")).click();
+        Thread.sleep(700);
+        driver.findElement(By.xpath("//div[@class='datepicker-months']//th[@class='datepicker-switch']")).click();
+        Thread.sleep(700);
+        while (driver.findElements(By.xpath("//span[text()='" + year + "']")).isEmpty()) {
+            driver.findElement(By.xpath("//div[@class='datepicker-years']//th[@class='prev']")).click();
+            Thread.sleep(500);
+        }
+        driver.findElement(By.xpath("//span[text()='" + year + "']")).click();
+        Thread.sleep(500);
+        driver.findElement(By.xpath("//span[normalize-space()='" + month + "']")).click();
+        Thread.sleep(500);
+        driver.findElement(By.xpath("//td[normalize-space()='" + day + "']")).click();
+        Thread.sleep(500);
+
+        driver.findElement(By.id("member_firstname")).sendKeys("Joe");
+        // No last name
+        driver.findElement(By.id("member_emailaddress")).sendKeys("missinglastname1@example.com");
+        driver.findElement(By.id("member_confirmemailaddress")).sendKeys("missinglastname1@example.com");
+        driver.findElement(By.id("signupunlicenced_password")).sendKeys("Password123!");
+        driver.findElement(By.id("signupunlicenced_confirmpassword")).sendKeys("Password123!");
+    }
+
+    @Then("the account should not be created")
+    public void theAccountShouldNotBeCreated() {
+        String currentUrl = driver.getCurrentUrl();
+        // Still on registration page = fail to register = test passes
+        assertTrue(currentUrl.contains("NewSupporterAccount"));
+
+        // driver.quit();
+    }
+
+    @When("I fill in all required details except matching passwords")
+    public void iFillInAllRequiredDetailsExceptMatchingPasswords() throws InterruptedException {
+        String year = "1988";
+        String month = "Jun";
+        String day = "6";
+
+        WebElement birthDateDropdown = driver.findElement(By.xpath("//input[@id='dp']"));
+        birthDateDropdown.click();
+        Thread.sleep(700);
+        driver.findElement(By.xpath("//th[@class='datepicker-switch']")).click();
+        Thread.sleep(700);
+        driver.findElement(By.xpath("//div[@class='datepicker-months']//th[@class='datepicker-switch']")).click();
+        Thread.sleep(700);
+        while (driver.findElements(By.xpath("//span[text()='" + year + "']")).isEmpty()) {
+            driver.findElement(By.xpath("//div[@class='datepicker-years']//th[@class='prev']")).click();
+            Thread.sleep(500);
+        }
+        driver.findElement(By.xpath("//span[text()='" + year + "']")).click();
+        Thread.sleep(500);
+        driver.findElement(By.xpath("//span[normalize-space()='" + month + "']")).click();
+        Thread.sleep(500);
+        driver.findElement(By.xpath("//td[normalize-space()='" + day + "']")).click();
+        Thread.sleep(500);
+
+        driver.findElement(By.id("member_firstname")).sendKeys("Joe");
+        driver.findElement(By.id("member_lastname")).sendKeys("Doe");
+        driver.findElement(By.id("member_emailaddress")).sendKeys("testuser_mismatch@example.com");
+        driver.findElement(By.id("member_confirmemailaddress")).sendKeys("testuser_mismatch@example.com");
+        driver.findElement(By.id("signupunlicenced_password")).sendKeys("Password123!");
+        driver.findElement(By.id("signupunlicenced_confirmpassword")).sendKeys("DifferentPassword!");
+    }
+
+    @Then("I should see a password mismatch error")
+    public void iShouldSeeAPasswordMismatchError() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//span[contains(text(),'Password did not match')]")
+        ));
+        assertTrue(error.isDisplayed());
+        System.out.println("Password mismatch validation displayed.");
+        // driver.quit();
+    }
+
+    @And("I do not accept the Terms and Conditions")
+    public void iDoNotAcceptTheTermsAndConditions() {
+        // Only tick the "I am over 18" and "Code of Ethics", but leave out Terms and Conditions
+        WebElement over18Checkbox = driver.findElement(By.xpath("//*[@id=\"signup_form\"]/div[11]/div/div[2]/div[2]/label/span[3]"));
+        over18Checkbox.click();
+
+        WebElement ethicsCheckbox = driver.findElement(By.xpath("//*[@id=\"signup_form\"]/div[11]/div/div[7]/label/span[3]"));
+        ethicsCheckbox.click();
+    }
+
 }
