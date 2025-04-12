@@ -45,5 +45,6 @@ Make sure you have:
 
 ##  Report
 
-(docs/CI.pdf)
+📄 [Läs rapporten om CI/CD här](docs/CI.pdf)
+
 
