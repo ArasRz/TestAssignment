@@ -45,4 +45,4 @@ Make sure you have:
 
 ##  Report
 
-[CI.pdf](..%2F..%2FDesktop%2FCI.pdf)
+CI.pdf
