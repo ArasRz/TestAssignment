@@ -45,4 +45,5 @@ Make sure you have:
 
 ##  Report
 
-CI.pdf
+(docs/CI.pdf)
+
